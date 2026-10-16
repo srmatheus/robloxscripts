@@ -39,9 +39,10 @@ local function findRemote(names, folderNames)
 end
 
 local function fire(rem, ...)
+    local args = table.pack(...)
     pcall(function()
-        if rem:IsA("RemoteEvent") then rem:FireServer(...)
-        else rem:InvokeServer(...) end
+        if rem:IsA("RemoteEvent") then rem:FireServer(table.unpack(args, 1, args.n))
+        else rem:InvokeServer(table.unpack(args, 1, args.n)) end
     end)
 end
 
