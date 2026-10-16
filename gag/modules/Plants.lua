@@ -98,30 +98,27 @@ function Plants:SetAutoHarvest(enabled)
     state.auto_harvest = enabled
     if not enabled then return end
     task.spawn(function()
-        local rem = findRemote({ "CollectPlant", "Harvest", "CollectFruit", "Collect" })
-        if not rem then warn("[Zurly Plants] No harvest remote found"); state.auto_harvest = false; return end
-        print("[Zurly Plants] Using harvest remote:", rem:GetFullName())
-
-        local function collectIn(folder)
-            if not folder then return end
-            for _, child in ipairs(folder:GetDescendants()) do
-                if not state.auto_harvest then return end
-                if child:IsA("Model") or child:IsA("BasePart") then
-                    local n = child.Name:lower()
-                    if (n:find("fruit") or n:find("crop") or n:find("plant")
-                        or child:GetAttribute("Harvestable"))
-                       and child.Parent then
-                        fire(rem, child)
-                        task.wait(0.08)
+        -- Grow a Garden harvests via ProximityPrompt (press E), not RemoteEvent.
+        -- Use executor's fireproximityprompt() to simulate E on every prompt in your garden.
+        local fp = fireproximityprompt or fire_proximity_prompt
+        if not fp then
+            warn("[Zurly Plants] Executor sem fireproximityprompt — pulando harvest")
+            state.auto_harvest = false
+            return
+        end
+        print("[Zurly Plants] Auto Harvest ativo via ProximityPrompt")
+        while state.auto_harvest do
+            local plot = getMyGarden()
+            if plot then
+                for _, inst in ipairs(plot:GetDescendants()) do
+                    if not state.auto_harvest then break end
+                    if inst:IsA("ProximityPrompt") and inst.Enabled then
+                        pcall(fp, inst)
+                        task.wait(0.03)
                     end
                 end
             end
-        end
-
-        while state.auto_harvest do
-            local plot = getMyGarden()
-            if plot then collectIn(plot) end
-            task.wait(1.2)
+            task.wait(0.5)
         end
     end)
 end

@@ -14,7 +14,9 @@ local function requireRemote(path)
 end
 
 if getgenv().ZURLY_GG_LOADED then
-    getgenv().ZURLY_GG_LOADED:Destroy()
+    pcall(function()
+        if getgenv().ZURLY_GG_LOADED.Destroy then getgenv().ZURLY_GG_LOADED:Destroy() end
+    end)
 end
 
 -- Shared

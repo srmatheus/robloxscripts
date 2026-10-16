@@ -11,9 +11,16 @@ local KA_URL   = "https://keyauth.win/api/1.3/"
 local CACHE_FILE = "zurly_hub_premium.json"
 
 -- Prefer executor's HTTP request function (POST support); fall back to syn/http
-local function request(opts)
-    local fn = (syn and syn.request) or (http and http.request) or request or http_request
-    return fn(opts)
+-- NOTE: local name must differ from global `request` to avoid self-recursion.
+local function httpRequest(opts)
+    local fn = (syn and syn.request)
+            or (http and http.request)
+            or (rawget(_G, "request"))
+            or (rawget(_G, "http_request"))
+    if not fn then return nil end
+    local ok, res = pcall(fn, opts)
+    if not ok then return nil end
+    return res
 end
 
 local function hasFile(path)
@@ -86,7 +93,7 @@ local sessionId = nil
 
 function KeyAuth:Init()
     local body = form({ type = "init", name = KA_NAME, ownerid = KA_OWNER, ver = KA_VER })
-    local res = request({
+    local res = httpRequest({
         Url = KA_URL, Method = "POST", Body = body,
         Headers = { ["Content-Type"] = "application/x-www-form-urlencoded",
                     ["User-Agent"] = "KeyAuth" },
@@ -108,7 +115,7 @@ function KeyAuth:Validate(key)
         type = "license", key = key, hwid = "zurly-lua-" .. tostring(game.JobId or "0"),
         name = KA_NAME, ownerid = KA_OWNER, sessionid = sessionId
     })
-    local res = request({
+    local res = httpRequest({
         Url = KA_URL, Method = "POST", Body = body,
         Headers = { ["Content-Type"] = "application/x-www-form-urlencoded",
                     ["User-Agent"] = "KeyAuth" },
