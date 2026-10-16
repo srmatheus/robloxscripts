@@ -4,8 +4,11 @@
 
 local BASE = "https://raw.githubusercontent.com/srmatheus/robloxscripts/main"
 
+-- Cache-buster: unique query string per session kills Volt's HttpGet cache
+local CBUST = "?v=" .. tostring(os.time()) .. "_" .. tostring(math.random(1, 999999))
+
 local function fetch(path)
-    local url = BASE .. "/" .. path
+    local url = BASE .. "/" .. path .. CBUST
     for i = 1, 3 do
         local ok, body = pcall(game.HttpGet, game, url)
         if ok and type(body) == "string" and #body > 0 then return body end
