@@ -9,6 +9,22 @@ local CBUST = "?v=" .. tostring(os.time()) .. "_" .. tostring(math.random(1, 999
 
 local function fetch(path)
     local url = BASE .. "/" .. path .. CBUST
+    -- Prefer executor's request() — supports headers (no-cache)
+    local reqfn = (syn and syn.request) or (http and http.request) or request or http_request
+    if reqfn then
+        for i = 1, 3 do
+            local ok, res = pcall(reqfn, {
+                Url = url, Method = "GET",
+                Headers = {
+                    ["Cache-Control"] = "no-cache, no-store, must-revalidate",
+                    ["Pragma"] = "no-cache",
+                },
+            })
+            if ok and res and res.Body and #res.Body > 0 then return res.Body end
+            task.wait(0.3)
+        end
+    end
+    -- Fallback: HttpGet (cached but works)
     for i = 1, 3 do
         local ok, body = pcall(game.HttpGet, game, url)
         if ok and type(body) == "string" and #body > 0 then return body end
