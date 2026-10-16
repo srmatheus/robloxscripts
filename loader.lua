@@ -1,8 +1,8 @@
 -- NXS Scripts — Universal Loader
 -- Single-line executor usage:
---   loadstring(game:HttpGet("https://raw.githubusercontent.com/REPLACE_USER/nxs-scripts/main/loader.lua"))()
+--   loadstring(game:HttpGet("https://raw.githubusercontent.com/srmatheus/robloxscripts/main/loader.lua"))()
 
-local BASE = "https://raw.githubusercontent.com/REPLACE_USER/nxs-scripts/main"
+local BASE = "https://raw.githubusercontent.com/srmatheus/robloxscripts/main"
 
 local function fetch(path)
     local url = BASE .. "/" .. path

@@ -11,7 +11,7 @@ Scripts para Roblox com modelo Free + Premium (via KeyAuth).
 Cola isso no seu executor (Volt, Swift, Wave):
 
 ```lua
-loadstring(game:HttpGet("https://raw.githubusercontent.com/REPLACE_USER/nxs-scripts/main/loader.lua"))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/srmatheus/robloxscripts/main/loader.lua"))()
 ```
 
 - **Free**: Auto Collect, Flight, Teleport, Anti-AFK

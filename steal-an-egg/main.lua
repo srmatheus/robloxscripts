@@ -1,7 +1,7 @@
 -- NXS Steal An Egg — bootstrap
 -- Loads all modules, initializes KeyAuth, starts UI.
 
-local BASE = getgenv().NXS_BASE or "https://raw.githubusercontent.com/REPLACE_USER/nxs-scripts/main"
+local BASE = getgenv().NXS_BASE or "https://raw.githubusercontent.com/srmatheus/robloxscripts/main"
 local FETCH = getgenv().NXS_FETCH or function(p)
     return game:HttpGet(BASE .. "/" .. p)
 end
