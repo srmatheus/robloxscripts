@@ -305,42 +305,74 @@ function UI:Build(Ctx, cfg)
         tabs.Debug = { panel = p, button = b, indicator = ind }
 
         W.Section(p, "Remote Discovery")
-        W.TextLabel(p, "Clica Scan pra listar remotes do jogo. Usa isso pra achar nomes de RemoteEvents (Plant, Sell, Harvest, Fuse...) que o jogo usa.", 44)
+        W.TextLabel(p, "Digite palavra-chave e Scan. Clica num remote pra copiar path pro clipboard.", 32)
+
+        local filterBox = W.Input(p, "filtro:  plant, sell, harvest, fuse, collect, buy...", "", false, nil)
 
         local output = Instance.new("Frame", p)
-        output.Size = UDim2.new(1, 0, 0, 220); output.BackgroundColor3 = T.panel2
+        output.Size = UDim2.new(1, 0, 0, 240); output.BackgroundColor3 = T.panel2
         output.BorderSizePixel = 0
         corner(output, 6)
         local scroll = Instance.new("ScrollingFrame", output)
         scroll.Size = UDim2.new(1, -8, 1, -8); scroll.Position = UDim2.new(0, 4, 0, 4)
         scroll.BackgroundTransparency = 1; scroll.BorderSizePixel = 0
-        scroll.ScrollBarThickness = 2; scroll.ScrollBarImageColor3 = T.accent
+        scroll.ScrollBarThickness = 3; scroll.ScrollBarImageColor3 = T.accent
         scroll.CanvasSize = UDim2.new(0, 0, 0, 0)
         local lay = Instance.new("UIListLayout", scroll)
         lay.Padding = UDim.new(0, 2); lay.SortOrder = Enum.SortOrder.LayoutOrder
 
-        W.Button(p, "Scan Remotes do Jogo", false, function()
+        local allRemotes = {}
+        local function renderList(filter)
             for _, c in ipairs(scroll:GetChildren()) do
-                if c:IsA("TextLabel") then c:Destroy() end
+                if c:IsA("TextButton") then c:Destroy() end
             end
-            local remotes = {}
-            for _, inst in ipairs(RS:GetDescendants()) do
-                if inst:IsA("RemoteEvent") or inst:IsA("RemoteFunction") then
-                    table.insert(remotes, inst)
+            filter = (filter or ""):lower()
+            local shown = 0
+            for _, r in ipairs(allRemotes) do
+                local fp = r:GetFullName():lower()
+                if filter == "" or fp:find(filter, 1, true) then
+                    shown = shown + 1
+                    local l = Instance.new("TextButton", scroll)
+                    l.Size = UDim2.new(1, -8, 0, 18); l.BackgroundColor3 = T.panel; l.BorderSizePixel = 0
+                    l.Font = Enum.Font.Code; l.TextSize = 10
+                    l.TextColor3 = r:IsA("RemoteEvent") and T.accentL or T.success
+                    l.TextXAlignment = Enum.TextXAlignment.Left
+                    l.Text = string.format("  [%s]  %s", r.ClassName == "RemoteEvent" and "RE" or "RF", r:GetFullName())
+                    l.AutoButtonColor = false
+                    corner(l, 3)
+                    local pathCopy = r:GetFullName()
+                    l.MouseButton1Click:Connect(function()
+                        local cb = setclipboard or set_clipboard or toclipboard
+                        if cb then pcall(cb, pathCopy) end
+                        l.Text = "  COPIADO: " .. pathCopy
+                        task.wait(0.6)
+                        l.Text = string.format("  [%s]  %s", r.ClassName == "RemoteEvent" and "RE" or "RF", pathCopy)
+                    end)
+                    l.MouseEnter:Connect(function()
+                        TS:Create(l, TweenInfo.new(0.1), {BackgroundColor3 = T.panel3}):Play()
+                    end)
+                    l.MouseLeave:Connect(function()
+                        TS:Create(l, TweenInfo.new(0.1), {BackgroundColor3 = T.panel}):Play()
+                    end)
                 end
             end
-            table.sort(remotes, function(a, b) return a.Name < b.Name end)
-            for _, r in ipairs(remotes) do
-                local l = Instance.new("TextLabel", scroll)
-                l.Size = UDim2.new(1, -8, 0, 16); l.BackgroundTransparency = 1
-                l.Font = Enum.Font.Code; l.TextSize = 10
-                l.TextColor3 = T.text; l.TextXAlignment = Enum.TextXAlignment.Left
-                local pad = Instance.new("UIPadding", l)
-                pad.PaddingLeft = UDim.new(0, 6)
-                l.Text = string.format("[%s]  %s", r.ClassName:sub(1, 7), r:GetFullName())
+            scroll.CanvasSize = UDim2.new(0, 0, 0, shown * 20 + 8)
+        end
+
+        W.Button(p, "Scan Remotes do Jogo", false, function()
+            allRemotes = {}
+            for _, inst in ipairs(RS:GetDescendants()) do
+                if inst:IsA("RemoteEvent") or inst:IsA("RemoteFunction") then
+                    table.insert(allRemotes, inst)
+                end
             end
-            scroll.CanvasSize = UDim2.new(0, 0, 0, #remotes * 18)
-            print("[Zurly Debug] Scanned", #remotes, "remotes — see list in Debug tab")
+            table.sort(allRemotes, function(a, b) return a.Name < b.Name end)
+            renderList(filterBox.Text)
+            print("[Zurly Debug] Scanned", #allRemotes, "remotes total")
+        end)
+
+        filterBox:GetPropertyChangedSignal("Text"):Connect(function()
+            if #allRemotes > 0 then renderList(filterBox.Text) end
         end)
 
         W.Section(p, "Manual Remote Fire")
