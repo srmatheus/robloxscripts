@@ -26,10 +26,10 @@ local Webhook   = requireRemote("shared/Webhook.lua")
 local Player    = requireRemote("shared/Player.lua")
 
 -- Game-specific
-local Plants   = requireRemote("grow-a-garden/modules/Plants.lua")
-local Shop     = requireRemote("grow-a-garden/modules/Shop.lua")
-local Pets     = requireRemote("grow-a-garden/modules/Pets.lua")
-local Teleport = requireRemote("grow-a-garden/modules/Teleport.lua")
+local Plants   = requireRemote("gag/modules/Plants.lua")
+local Shop     = requireRemote("gag/modules/Shop.lua")
+local Pets     = requireRemote("gag/modules/Pets.lua")
+local Teleport = requireRemote("gag/modules/Teleport.lua")
 
 local Config = ConfigLib.New("grow_a_garden", {
     -- Free
@@ -72,7 +72,7 @@ end
 local userCfg = Config:Load()
 
 -- Load UI builder for this game
-local UI = requireRemote("grow-a-garden/modules/UI.lua")
+local UI = requireRemote("gag/modules/UI.lua")
 local gui = UI:Build(Ctx, userCfg)
 getgenv().ZURLY_GG_LOADED = gui
 

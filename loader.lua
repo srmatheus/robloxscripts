@@ -36,9 +36,9 @@ end
 -- Route by PlaceId / GameId
 local routes = {
     [107778070777162] = "steal-an-egg/main.lua",   -- Roube um Ovo
-    [124977557560410] = "grow-a-garden/main.lua",  -- Grow a Garden (main)
-    [126884695634066] = "grow-a-garden/main.lua",  -- Grow a Garden (alt)
-    [95206881326333]  = "grow-a-garden/main.lua",  -- Grow a Garden (alt)
+    [124977557560410] = "gag/main.lua",  -- Grow a Garden (main)
+    [126884695634066] = "gag/main.lua",  -- Grow a Garden (alt)
+    [95206881326333]  = "gag/main.lua",  -- Grow a Garden (alt)
 }
 
 local target = routes[game.PlaceId] or routes[game.GameId]
